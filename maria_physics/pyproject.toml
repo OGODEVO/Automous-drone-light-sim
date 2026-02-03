@@ -1,0 +1,14 @@
+[project]
+name = "maria_physics"
+version = "0.1.0"
+description = "MuJoCo-based physics simulation for drone control"
+requires-python = ">=3.10"
+dependencies = [
+    "mujoco>=3.0.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]

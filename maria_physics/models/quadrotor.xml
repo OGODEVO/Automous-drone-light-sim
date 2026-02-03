@@ -1,0 +1,77 @@
+<mujoco model="quadrotor">
+  <!-- 
+    Quadrotor Model for Maria Physics
+    4 motors in + configuration (not X)
+    Motor 1: +X (Front)
+    Motor 2: -X (Back)
+    Motor 3: +Y (Left)
+    Motor 4: -Y (Right)
+  -->
+  
+  <option gravity="0 0 -9.81" timestep="0.002"/>
+  
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="512"/>
+    <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1="0.1 0.2 0.3" rgb2="0.2 0.3 0.4"/>
+    <material name="grid" texture="grid" texrepeat="8 8" reflectance="0.2"/>
+  </asset>
+  
+  <worldbody>
+    <!-- Ground plane -->
+    <geom name="floor" type="plane" size="50 50 0.1" material="grid"/>
+    
+    <!-- The Quadrotor Body -->
+    <body name="drone" pos="0 0 2">
+      <freejoint name="root"/>
+      
+      <!-- Central body (fuselage) -->
+      <geom name="body" type="box" size="0.1 0.1 0.03" mass="0.5" rgba="0.2 0.2 0.2 1"/>
+      
+      <!-- Arms (4 directions) -->
+      <geom name="arm1" type="capsule" fromto="0.1 0 0 0.25 0 0" size="0.01" mass="0.05" rgba="0.5 0.5 0.5 1"/>
+      <geom name="arm2" type="capsule" fromto="-0.1 0 0 -0.25 0 0" size="0.01" mass="0.05" rgba="0.5 0.5 0.5 1"/>
+      <geom name="arm3" type="capsule" fromto="0 0.1 0 0 0.25 0" size="0.01" mass="0.05" rgba="0.5 0.5 0.5 1"/>
+      <geom name="arm4" type="capsule" fromto="0 -0.1 0 0 -0.25 0" size="0.01" mass="0.05" rgba="0.5 0.5 0.5 1"/>
+      
+      <!-- Motors (represented as small cylinders) -->
+      <geom name="motor1" type="cylinder" pos="0.25 0 0.02" size="0.03 0.01" mass="0.02" rgba="1 0 0 1"/>
+      <geom name="motor2" type="cylinder" pos="-0.25 0 0.02" size="0.03 0.01" mass="0.02" rgba="0 1 0 1"/>
+      <geom name="motor3" type="cylinder" pos="0 0.25 0.02" size="0.03 0.01" mass="0.02" rgba="0 0 1 1"/>
+      <geom name="motor4" type="cylinder" pos="0 -0.25 0.02" size="0.03 0.01" mass="0.02" rgba="1 1 0 1"/>
+      
+      <!-- Motor thrust application sites (where forces are applied) -->
+      <site name="thrust_site1" pos="0.25 0 0.02" size="0.01"/>
+      <site name="thrust_site2" pos="-0.25 0 0.02" size="0.01"/>
+      <site name="thrust_site3" pos="0 0.25 0.02" size="0.01"/>
+      <site name="thrust_site4" pos="0 -0.25 0.02" size="0.01"/>
+      
+      <!-- IMU sensor site (for reading orientation) -->
+      <site name="imu" pos="0 0 0" size="0.01"/>
+    </body>
+    
+    <!-- A simple gate to fly through -->
+    <body name="gate1" pos="10 0 3">
+      <geom name="gate_left" type="box" pos="-1.5 0 0" size="0.1 0.1 1.5" rgba="1 0.5 0 1"/>
+      <geom name="gate_right" type="box" pos="1.5 0 0" size="0.1 0.1 1.5" rgba="1 0.5 0 1"/>
+      <geom name="gate_top" type="box" pos="0 0 1.5" size="1.5 0.1 0.1" rgba="1 0.5 0 1"/>
+    </body>
+  </worldbody>
+  
+  <!-- Actuators: 4 motors applying upward thrust at their respective positions -->
+  <actuator>
+    <!-- Each motor applies force in the body's local Z direction at its position -->
+    <general name="thrust1" site="thrust_site1" gear="0 0 1 0 0 0" ctrlrange="0 5" forcerange="0 5"/>
+    <general name="thrust2" site="thrust_site2" gear="0 0 1 0 0 0" ctrlrange="0 5" forcerange="0 5"/>
+    <general name="thrust3" site="thrust_site3" gear="0 0 1 0 0 0" ctrlrange="0 5" forcerange="0 5"/>
+    <general name="thrust4" site="thrust_site4" gear="0 0 1 0 0 0" ctrlrange="0 5" forcerange="0 5"/>
+  </actuator>
+  
+  <!-- Sensors -->
+  <sensor>
+    <framepos name="pos" objtype="site" objname="imu"/>
+    <framequat name="quat" objtype="site" objname="imu"/>
+    <framelinvel name="vel" objtype="site" objname="imu"/>
+    <gyro name="gyro" site="imu"/>
+    <accelerometer name="accel" site="imu"/>
+  </sensor>
+</mujoco>
